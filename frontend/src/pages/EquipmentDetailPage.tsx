@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { api } from "../api/client";
-import type { Equipment, MaintenanceRecord, MaintenanceRecordInput } from "../types";
+import { useAuth } from "../auth/AuthContext";
+import { codeName } from "../lib/codeLookup";
+import type { Code, Equipment, MaintenanceRecord, MaintenanceRecordInput, User } from "../types";
 
 const emptyForm: MaintenanceRecordInput = {
   record_type: "inspection",
@@ -23,8 +25,11 @@ export default function EquipmentDetailPage() {
   const { id } = useParams<{ id: string }>();
   const equipmentId = Number(id);
 
+  const { user } = useAuth();
   const [equipment, setEquipment] = useState<Equipment | null>(null);
   const [records, setRecords] = useState<MaintenanceRecord[]>([]);
+  const [codes, setCodes] = useState<Code[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [form, setForm] = useState<MaintenanceRecordInput>(emptyForm);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,6 +42,16 @@ export default function EquipmentDetailPage() {
   };
 
   useEffect(load, [equipmentId]);
+  useEffect(() => {
+    api.listCodes().then(setCodes).catch((e) => setError(String(e)));
+    api.listUsers().then(setUsers).catch((e) => setError(String(e)));
+  }, []);
+
+  const ownerLabel = (id: number | null) => {
+    if (id == null) return "-";
+    const u = users.find((u) => u.id === id);
+    return u ? (u.full_name ?? u.username) : "-";
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,12 +81,40 @@ export default function EquipmentDetailPage() {
   return (
     <div>
       <p>
-        <Link to="/">← 목록으로</Link>
+        <Link to="/equipments">← 목록으로</Link>
       </p>
       <h2>{equipment.name}</h2>
       <p>
-        모델: {equipment.model ?? "-"} / 위치: {equipment.location ?? "-"} / IP:{" "}
-        {equipment.ip_address ?? "-"} / 담당자: {equipment.owner ?? "-"}
+        연번: {equipment.serial_no ?? "-"} / 모델: {equipment.model ?? "-"} / 위치:{" "}
+        {equipment.location ?? "-"} / IP: {equipment.ip_address ?? "-"} / 담당자:{" "}
+        {ownerLabel(equipment.owner_user_id)}
+      </p>
+      <p>
+        소속기관: {codeName(codes, equipment.org_code_id)} / 대분류:{" "}
+        {codeName(codes, equipment.major_category_code_id)} / 업무:{" "}
+        {codeName(codes, equipment.business_code_id)} / 구분: {equipment.hw_sw ?? "-"} / 제품구분:{" "}
+        {codeName(codes, equipment.product_type_code_id)} / 제조사:{" "}
+        {codeName(codes, equipment.manufacturer_code_id)}
+      </p>
+      <p>
+        수량: {equipment.quantity} / 단가: {equipment.unit_price.toLocaleString()} / 취득가격:{" "}
+        {equipment.acquisition_price.toLocaleString()} / 유지보수 대상여부:{" "}
+        {equipment.maintenance_target === "free"
+          ? "무상"
+          : equipment.maintenance_target === "paid"
+            ? "유상"
+            : "-"}
+        {user?.is_admin && (
+          <>
+            {" "}
+            / 유지관리요율: {equipment.maintenance_rate ?? "-"}% / 유지개월:{" "}
+            {equipment.maintenance_months} / 유지관리금액: {equipment.maintenance_amount.toLocaleString()}
+          </>
+        )}
+      </p>
+      <p>
+        검토결과: {codeName(codes, equipment.review_result_code_id)} / 검토내용:{" "}
+        {equipment.review_content ?? "-"}
       </p>
 
       <h3>유지보수/점검 이력 등록</h3>
