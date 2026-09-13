@@ -12,6 +12,7 @@ from app.api import (
     menus,
     part_replacements,
     permissions,
+    session_settings,
     sla,
     special_checks,
     support_tickets,
@@ -46,6 +47,7 @@ app.include_router(part_replacements.router)
 app.include_router(support_tickets.router)
 app.include_router(failure_incidents.router)
 app.include_router(sla.router)
+app.include_router(session_settings.router)
 
 
 @app.get("/health")

@@ -19,6 +19,7 @@ const NAV_ITEMS = [
 const ADMIN_NAV_ITEMS = [
   { to: "/sla/master-data", label: "SLA-Master Data" },
   { to: "/users", label: "계정 관리" },
+  { to: "/session-settings", label: "세션 타임아웃" },
   { to: "/groups", label: "그룹 관리" },
   { to: "/permissions", label: "권한 관리" },
   { to: "/menus", label: "메뉴 관리" },

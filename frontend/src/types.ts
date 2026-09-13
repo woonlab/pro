@@ -437,3 +437,12 @@ export interface SlaMonthlySummary {
   failure_duplicate_count: number;
   failure_total_count: number;
 }
+
+export interface SessionSettings {
+  idle_timeout_minutes: number;
+  updated_at: string;
+}
+
+export interface SessionSettingsUpdateInput {
+  idle_timeout_minutes: number;
+}

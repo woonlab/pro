@@ -15,6 +15,7 @@ from app.models import (  # noqa: F401  (register models on Base.metadata)
     menu,
     permission,
     preventive_lists,
+    settings as settings_models,
     sla,
     tech_support,
     user,

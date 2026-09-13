@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 
 import { AuthProvider } from "./auth/AuthContext";
 import AdminRoute from "./components/AdminRoute";
+import IdleTimeoutGuard from "./components/IdleTimeoutGuard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Sidebar from "./components/Sidebar";
 import CodesPage from "./pages/CodesPage";
@@ -19,6 +20,7 @@ import SlaAvailabilityPage from "./pages/SlaAvailabilityPage";
 import SlaMasterDataPage from "./pages/SlaMasterDataPage";
 import SlaMonthlyStatusPage from "./pages/SlaMonthlyStatusPage";
 import SlaOperationPage from "./pages/SlaOperationPage";
+import SessionSettingsPage from "./pages/SessionSettingsPage";
 import SpecialChecksPage from "./pages/SpecialChecksPage";
 import SupportTicketsPage from "./pages/SupportTicketsPage";
 import UsersPage from "./pages/UsersPage";
@@ -35,6 +37,7 @@ export default function App() {
           element={
             <ProtectedRoute>
               <div className="app-shell">
+                <IdleTimeoutGuard />
                 <Sidebar />
                 <main className="app-main">
                   <div className="app">
@@ -65,6 +68,14 @@ export default function App() {
                     element={
                       <AdminRoute>
                         <UsersPage />
+                      </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/session-settings"
+                    element={
+                      <AdminRoute>
+                        <SessionSettingsPage />
                       </AdminRoute>
                     }
                   />

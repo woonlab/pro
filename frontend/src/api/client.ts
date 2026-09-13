@@ -20,6 +20,8 @@ import type {
   Permission,
   PermissionDetail,
   PermissionInput,
+  SessionSettings,
+  SessionSettingsUpdateInput,
   SlaBusinessMonthlyEntryInput,
   SlaBusinessMonthlyRow,
   SlaBusinessService,
@@ -324,4 +326,8 @@ export const api = {
 
   getSlaMonthlySummary: (yearMonth: string) =>
     request<SlaMonthlySummary>(`/sla/monthly-summary?year_month=${yearMonth}`),
+
+  getSessionSettings: () => request<SessionSettings>("/session-settings"),
+  updateSessionSettings: (data: SessionSettingsUpdateInput) =>
+    request<SessionSettings>("/session-settings", { method: "PUT", body: JSON.stringify(data) }),
 };
