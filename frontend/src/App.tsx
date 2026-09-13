@@ -2,8 +2,8 @@ import { Route, Routes } from "react-router-dom";
 
 import { AuthProvider } from "./auth/AuthContext";
 import AdminRoute from "./components/AdminRoute";
-import Header from "./components/Header";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Sidebar from "./components/Sidebar";
 import CodesPage from "./pages/CodesPage";
 import DailyCheckDetailPage from "./pages/DailyCheckDetailPage";
 import DailyChecksPage from "./pages/DailyChecksPage";
@@ -34,9 +34,11 @@ export default function App() {
           path="/*"
           element={
             <ProtectedRoute>
-              <Header />
-              <div className="app">
-                <Routes>
+              <div className="app-shell">
+                <Sidebar />
+                <main className="app-main">
+                  <div className="app">
+                    <Routes>
                   <Route path="/" element={<EquipmentListPage />} />
                   <Route path="/equipments/:id" element={<EquipmentDetailPage />} />
                   <Route path="/daily-checks" element={<DailyChecksPage />} />
@@ -98,7 +100,9 @@ export default function App() {
                       </AdminRoute>
                     }
                   />
-                </Routes>
+                    </Routes>
+                  </div>
+                </main>
               </div>
             </ProtectedRoute>
           }

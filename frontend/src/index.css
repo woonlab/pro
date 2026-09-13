@@ -16,53 +16,88 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
+  /* Korean text has no spaces between words — without this, a narrow column
+     wraps one syllable per line instead of keeping phrases on one line. */
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 
-.app-header {
+.app-shell {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  padding: 14px 24px;
+  min-height: 100vh;
+  align-items: stretch;
+}
+
+.app-sidebar {
+  width: 220px;
+  flex: 0 0 220px;
   background: var(--navy);
   color: white;
-}
-
-.app-header__left {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px 18px;
+  flex-direction: column;
+  padding: 20px 0;
+  overflow-y: auto;
 }
 
-.app-header__brand {
+.app-sidebar__brand {
   font-size: 20px;
   font-weight: 700;
   letter-spacing: 0.5px;
   color: white;
+  padding: 0 20px 20px;
 }
 
-.app-header__brand span {
+.app-sidebar__brand span {
   color: var(--accent);
 }
 
-.app-header__nav-link {
+.app-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.app-sidebar__link {
+  padding: 10px 20px;
   color: #cfd4dc;
   font-weight: 500;
   font-size: 14px;
 }
 
-.app-header__nav-link:hover {
+.app-sidebar__link:hover {
+  background: var(--navy-light);
   color: white;
 }
 
-.app-header__user {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.app-sidebar__link.active {
+  background: var(--navy-light);
+  color: white;
+  font-weight: 700;
+}
+
+.app-sidebar__divider {
+  margin-top: 14px;
+  padding: 8px 20px 4px;
+  font-size: 11px;
+  color: #8891a0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.app-sidebar__user {
+  padding: 16px 20px 0;
+  margin-top: 12px;
+  border-top: 1px solid var(--navy-light);
   font-size: 14px;
   color: #cfd4dc;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
 }
 
 .app {
@@ -71,10 +106,21 @@ body {
   padding: 24px;
 }
 
+/* Wrapping <table> in a horizontally scrolling box (rather than letting
+   columns get squeezed) keeps every cell's text on one horizontal line,
+   even for long labels — the table grows or scrolls instead of stacking
+   Korean text vertically one character per line. */
 table {
   width: 100%;
   border-collapse: collapse;
   background: white;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+thead, tbody, tr {
+  width: 100%;
 }
 
 th, td {
@@ -82,6 +128,7 @@ th, td {
   padding: 8px 12px;
   border-bottom: 1px solid var(--border);
   font-size: 14px;
+  white-space: nowrap;
 }
 
 th {
