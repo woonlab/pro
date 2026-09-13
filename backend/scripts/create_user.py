@@ -1,7 +1,7 @@
 """Create or update a login user.
 
 Usage:
-    python scripts/create_user.py <username> <password> [--full-name "홍길동"]
+    python scripts/create_user.py <username> <password> [--full-name "홍길동"] [--admin]
 
 Run from the backend/ directory with the venv activated.
 """
@@ -23,6 +23,7 @@ def main() -> None:
     parser.add_argument("username")
     parser.add_argument("password")
     parser.add_argument("--full-name", default=None)
+    parser.add_argument("--admin", action="store_true", help="Grant admin privileges")
     args = parser.parse_args()
 
     db = SessionLocal()
@@ -38,9 +39,11 @@ def main() -> None:
         user.hashed_password = hash_password(args.password)
         if args.full_name:
             user.full_name = args.full_name
+        if args.admin:
+            user.is_admin = True
 
         db.commit()
-        print(f"사용자 '{args.username}' {action} 완료")
+        print(f"사용자 '{args.username}' {action} 완료 (admin={user.is_admin})")
     finally:
         db.close()
 

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../auth/AuthContext";
 
@@ -13,8 +13,15 @@ export default function Header() {
 
   return (
     <header className="app-header">
-      <div className="app-header__brand">
-        FMS<span>ICT</span>
+      <div className="app-header__left">
+        <Link to="/" className="app-header__brand">
+          FMS<span>ICT</span>
+        </Link>
+        {user?.is_admin && (
+          <Link to="/users" className="app-header__nav-link">
+            계정 관리
+          </Link>
+        )}
       </div>
       {user && (
         <div className="app-header__user">

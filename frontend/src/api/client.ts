@@ -5,6 +5,7 @@ import type {
   MaintenanceRecordInput,
   Token,
   User,
+  UserCreateInput,
 } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
@@ -73,4 +74,14 @@ export const api = {
     }),
   deleteMaintenanceRecord: (id: number) =>
     request<void>(`/maintenance-records/${id}`, { method: "DELETE" }),
+
+  listUsers: () => request<User[]>("/users"),
+  createUser: (data: UserCreateInput) =>
+    request<User>("/users", { method: "POST", body: JSON.stringify(data) }),
+  updateUserPassword: (id: number, password: string) =>
+    request<User>(`/users/${id}/password`, {
+      method: "PUT",
+      body: JSON.stringify({ password }),
+    }),
+  deleteUser: (id: number) => request<void>(`/users/${id}`, { method: "DELETE" }),
 };

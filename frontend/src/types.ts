@@ -40,6 +40,14 @@ export interface User {
   id: number;
   username: string;
   full_name: string | null;
+  is_admin: boolean;
+}
+
+export interface UserCreateInput {
+  username: string;
+  password: string;
+  full_name: string | null;
+  is_admin: boolean;
 }
 
 export interface Token {

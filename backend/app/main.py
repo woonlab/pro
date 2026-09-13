@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import auth, equipment, maintenance
+from app.api import auth, equipment, maintenance, users
 from app.core.config import settings
 
 app = FastAPI(title="FMS API")
@@ -16,6 +16,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(equipment.router)
 app.include_router(maintenance.router)
+app.include_router(users.router)
 
 
 @app.get("/health")
