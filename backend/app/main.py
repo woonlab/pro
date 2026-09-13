@@ -5,6 +5,7 @@ from app.api import (
     auth,
     codes,
     daily_checks,
+    dashboard,
     equipment,
     failure_incidents,
     groups,
@@ -48,6 +49,7 @@ app.include_router(support_tickets.router)
 app.include_router(failure_incidents.router)
 app.include_router(sla.router)
 app.include_router(session_settings.router)
+app.include_router(dashboard.router)
 
 
 @app.get("/health")

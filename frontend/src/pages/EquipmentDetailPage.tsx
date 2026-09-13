@@ -81,7 +81,7 @@ export default function EquipmentDetailPage() {
   return (
     <div>
       <p>
-        <Link to="/">← 목록으로</Link>
+        <Link to="/equipments">← 목록으로</Link>
       </p>
       <h2>{equipment.name}</h2>
       <p>

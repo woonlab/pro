@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
 const NAV_ITEMS = [
-  { to: "/", label: "장비관리" },
+  { to: "/", label: "대시보드" },
+  { to: "/equipments", label: "장비관리" },
   { to: "/daily-checks", label: "일일점검" },
   { to: "/special-checks", label: "특별점검" },
   { to: "/weekly-tasks", label: "주간예정업무" },

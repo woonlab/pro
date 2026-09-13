@@ -8,6 +8,7 @@ import Sidebar from "./components/Sidebar";
 import CodesPage from "./pages/CodesPage";
 import DailyCheckDetailPage from "./pages/DailyCheckDetailPage";
 import DailyChecksPage from "./pages/DailyChecksPage";
+import DashboardPage from "./pages/DashboardPage";
 import EquipmentDetailPage from "./pages/EquipmentDetailPage";
 import EquipmentListPage from "./pages/EquipmentListPage";
 import FailureIncidentsPage from "./pages/FailureIncidentsPage";
@@ -42,7 +43,8 @@ export default function App() {
                 <main className="app-main">
                   <div className="app">
                     <Routes>
-                  <Route path="/" element={<EquipmentListPage />} />
+                  <Route path="/" element={<DashboardPage />} />
+                  <Route path="/equipments" element={<EquipmentListPage />} />
                   <Route path="/equipments/:id" element={<EquipmentDetailPage />} />
                   <Route path="/daily-checks" element={<DailyChecksPage />} />
                   <Route path="/daily-checks/:id" element={<DailyCheckDetailPage />} />

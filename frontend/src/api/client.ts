@@ -3,6 +3,7 @@ import type {
   CodeInput,
   DailyCheck,
   DailyCheckInput,
+  DashboardSummary,
   Equipment,
   EquipmentInput,
   FailureIncident,
@@ -330,4 +331,7 @@ export const api = {
   getSessionSettings: () => request<SessionSettings>("/session-settings"),
   updateSessionSettings: (data: SessionSettingsUpdateInput) =>
     request<SessionSettings>("/session-settings", { method: "PUT", body: JSON.stringify(data) }),
+
+  getDashboardSummary: (year: number, month: number) =>
+    request<DashboardSummary>(`/dashboard/summary?year=${year}&month=${month}`),
 };

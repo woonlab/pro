@@ -446,3 +446,54 @@ export interface SessionSettings {
 export interface SessionSettingsUpdateInput {
   idle_timeout_minutes: number;
 }
+
+export interface DashboardFailureIncidentCounts {
+  in_progress: number;
+  completed: number;
+  approved: number;
+}
+
+export interface DashboardDailyCheckCounts {
+  pending_approval: number;
+  approved: number;
+}
+
+export interface DashboardAssetSummary {
+  existing_count: number;
+  year_target_label: string;
+  year_target_count: number;
+  delete_planned_count: number;
+}
+
+export interface DashboardPreventiveSummary {
+  daily_check_count: number;
+  special_check_count: number;
+  weekly_task_count: number;
+  work_status_count: number;
+}
+
+export interface DashboardTechSupportSummary {
+  part_replacement_count: number;
+  pc_printer_count: number;
+  info_system_count: number;
+  portal_count: number;
+}
+
+export interface DashboardSlaTrendPoint {
+  year_month: string;
+  total: number;
+  availability: number;
+  operation: number;
+  failure: number;
+}
+
+export interface DashboardSummary {
+  year: number;
+  month: number;
+  failure_incident: DashboardFailureIncidentCounts;
+  daily_check: DashboardDailyCheckCounts;
+  asset: DashboardAssetSummary;
+  preventive: DashboardPreventiveSummary;
+  tech_support: DashboardTechSupportSummary;
+  sla_trend: DashboardSlaTrendPoint[];
+}
