@@ -6,41 +6,13 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
 from app.core.db import get_db
-from app.models.daily_check import DailyCheck, DailyCheckFailure, DailyCheckItem
+from app.models.daily_check import DailyCheck
 from app.models.user import User
 from app.schemas.daily_check import DailyCheckCreate, DailyCheckRead, DailyCheckUpdate
 
 router = APIRouter(
     prefix="/daily-checks", tags=["daily-checks"], dependencies=[Depends(get_current_user)]
 )
-
-
-def _apply_items_and_failures(db: Session, daily_check: DailyCheck, data: DailyCheckCreate | DailyCheckUpdate) -> None:
-    daily_check.items.clear()
-    daily_check.failures.clear()
-    db.flush()
-    for order, item in enumerate(data.items):
-        db.add(
-            DailyCheckItem(
-                daily_check_id=daily_check.id,
-                business_code_id=item.business_code_id,
-                target_code_id=item.target_code_id,
-                remark_code_id=item.remark_code_id,
-                note=item.note,
-                sort_order=order,
-            )
-        )
-    for order, failure in enumerate(data.failures):
-        db.add(
-            DailyCheckFailure(
-                daily_check_id=daily_check.id,
-                system_name=failure.system_name,
-                failure_time=failure.failure_time,
-                cause=failure.cause,
-                action=failure.action,
-                sort_order=order,
-            )
-        )
 
 
 @router.get("", response_model=list[DailyCheckRead])
@@ -59,10 +31,8 @@ def list_daily_checks(
 
 @router.post("", response_model=DailyCheckRead, status_code=201)
 def create_daily_check(data: DailyCheckCreate, db: Session = Depends(get_db)):
-    daily_check = DailyCheck(check_date=data.check_date, inspector_user_id=data.inspector_user_id)
+    daily_check = DailyCheck(**data.model_dump())
     db.add(daily_check)
-    db.flush()
-    _apply_items_and_failures(db, daily_check, data)
     db.commit()
     db.refresh(daily_check)
     return daily_check
@@ -83,9 +53,8 @@ def update_daily_check(daily_check_id: int, data: DailyCheckUpdate, db: Session 
         raise HTTPException(status_code=404, detail="Daily check not found")
     if daily_check.approved:
         raise HTTPException(status_code=400, detail="Already approved; cannot modify")
-    daily_check.check_date = data.check_date
-    daily_check.inspector_user_id = data.inspector_user_id
-    _apply_items_and_failures(db, daily_check, data)
+    for field, value in data.model_dump().items():
+        setattr(daily_check, field, value)
     db.commit()
     db.refresh(daily_check)
     return daily_check

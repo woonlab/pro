@@ -1,5 +1,5 @@
 from app.models.code import Code
-from app.models.daily_check import DailyCheck, DailyCheckFailure, DailyCheckItem
+from app.models.daily_check import DailyCheck
 from app.models.equipment import Equipment
 from app.models.failure_incident import FailureIncident
 from app.models.group import Group
@@ -21,8 +21,6 @@ from app.models.user import User
 __all__ = [
     "Code",
     "DailyCheck",
-    "DailyCheckFailure",
-    "DailyCheckItem",
     "Equipment",
     "FailureIncident",
     "Group",

@@ -180,46 +180,22 @@ export interface GroupInput {
   is_active: boolean;
 }
 
-export interface DailyCheckItemInput {
-  business_code_id: number | null;
-  target_code_id: number | null;
-  remark_code_id: number | null;
-  note: string | null;
-}
-
-export interface DailyCheckItem extends DailyCheckItemInput {
-  id: number;
-}
-
-export interface DailyCheckFailureInput {
-  system_name: string | null;
-  failure_time: string | null;
-  cause: string | null;
-  action: string | null;
-}
-
-export interface DailyCheckFailure extends DailyCheckFailureInput {
-  id: number;
-}
-
 export interface DailyCheckInput {
   check_date: string;
   inspector_user_id: number | null;
-  items: DailyCheckItemInput[];
-  failures: DailyCheckFailureInput[];
+  common_content: string | null;
+  maintenance_content: string | null;
+  log_missing_content: string | null;
+  ongoing_work_content: string | null;
 }
 
-export interface DailyCheck {
+export interface DailyCheck extends DailyCheckInput {
   id: number;
-  check_date: string;
-  inspector_user_id: number | null;
   approved: boolean;
   approved_by_user_id: number | null;
   approved_at: string | null;
   created_at: string;
   updated_at: string;
-  items: DailyCheckItem[];
-  failures: DailyCheckFailure[];
 }
 
 export interface SpecialCheckInput {
