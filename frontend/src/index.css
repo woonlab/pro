@@ -113,7 +113,7 @@ body {
 table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+  background: transparent;
   display: block;
   overflow-x: auto;
   white-space: nowrap;
@@ -134,6 +134,10 @@ th, td {
 th {
   background: #eef0f3;
   color: var(--text);
+}
+
+td {
+  background: white;
 }
 
 tr:hover td {
