@@ -964,3 +964,9 @@ button.dash-big--link:hover {
 .wt-form input, .wt-form select { width: 100%; box-sizing: border-box; }
 .wt-form button { justify-self: end; }
 @media (max-width: 960px) { .wt-body { grid-template-columns: 1fr; } }
+
+/* Sidebar groups */
+.app-sidebar__group { margin-top: 6px; display: flex; flex-direction: column; }
+.app-sidebar__group-head { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 9px 20px 4px; background: transparent; color: #8891a0; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; border-radius: 0; text-align: left; }
+.app-sidebar__group-head:hover { background: transparent; color: #cfd4dc; }
+.app-sidebar__link--sub { padding: 7px 20px 7px 34px; font-size: 13px; }
