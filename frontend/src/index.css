@@ -941,3 +941,26 @@ button.dash-big--link:hover {
 .dc-grid textarea { width: 100%; box-sizing: border-box; resize: vertical; }
 .dc-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
 @media (max-width: 860px) { .dc-week { grid-template-columns: repeat(4, 1fr); } .dc-grid { grid-template-columns: 1fr; } }
+
+/* Weekly tasks calendar */
+.wt-body { display: grid; grid-template-columns: 1.7fr 1fr; gap: 16px; align-items: start; }
+.wt-cal { display: grid; grid-template-columns: repeat(7, 1fr); }
+.wt-h { text-align: center; font-size: 12px; font-weight: 600; color: var(--muted); padding: 6px 0; }
+.wt-sun { color: #c0392b; }
+.wt-sat { color: #2563eb; }
+.wt-cell { display: flex; flex-direction: column; align-items: stretch; gap: 2px; min-height: 84px; padding: 4px 5px; width: auto; text-align: left; background: white; color: var(--text); border: 1px solid var(--border); border-radius: 0; font-weight: 400; }
+.wt-cell:hover { background: #f9fafb; }
+.wt-cell--other { background: #f5f6f8; color: #b7bcc4; }
+.wt-cell--today .wt-num { background: var(--accent); color: white; border-radius: 99px; padding: 0 6px; }
+.wt-cell--sel { outline: 2px solid var(--accent); outline-offset: -2px; background: #fffaf2; }
+.wt-num { font-size: 12px; font-weight: 600; align-self: flex-start; }
+.wt-ev { font-size: 11px; padding: 1px 5px; border-radius: 3px; background: #fff2e0; color: var(--accent-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wt-more { font-size: 11px; color: var(--muted); }
+.wt-list { list-style: none; margin: 0 0 12px; padding: 0; }
+.wt-list li { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.wt-list small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.wt-list button { padding: 3px 8px; font-size: 12px; }
+.wt-form { display: grid; gap: 8px; padding: 0; border: none; margin: 12px 0 0; background: transparent; }
+.wt-form input, .wt-form select { width: 100%; box-sizing: border-box; }
+.wt-form button { justify-self: end; }
+@media (max-width: 960px) { .wt-body { grid-template-columns: 1fr; } }
