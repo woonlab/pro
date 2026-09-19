@@ -41,6 +41,26 @@ class SlaTrendPoint(BaseModel):
     failure: float
 
 
+class TodoItem(BaseModel):
+    kind: str
+    title: str
+    badge: str
+    badge_type: str  # danger / warn / ok
+    path: str
+
+
+class AssetCategoryCount(BaseModel):
+    category: str
+    label: str
+    count: int
+
+
+class SlaGroupScore(BaseModel):
+    key: str
+    label: str
+    score: float  # 0-100
+
+
 class DashboardSummary(BaseModel):
     year: int
     month: int
@@ -50,3 +70,9 @@ class DashboardSummary(BaseModel):
     preventive: PreventiveSummary
     tech_support: TechSupportSummary
     sla_trend: list[SlaTrendPoint]
+    todos: list[TodoItem]
+    todo_total: int
+    asset_categories: list[AssetCategoryCount]
+    sla_groups: list[SlaGroupScore]
+    ticket_total: int
+    ticket_unresolved: int

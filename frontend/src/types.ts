@@ -463,6 +463,26 @@ export interface DashboardSlaTrendPoint {
   failure: number;
 }
 
+export interface DashboardTodoItem {
+  kind: string;
+  title: string;
+  badge: string;
+  badge_type: "danger" | "warn" | "ok";
+  path: string;
+}
+
+export interface DashboardAssetCategory {
+  category: string;
+  label: string;
+  count: number;
+}
+
+export interface DashboardSlaGroup {
+  key: string;
+  label: string;
+  score: number;
+}
+
 export interface DashboardSummary {
   year: number;
   month: number;
@@ -472,4 +492,10 @@ export interface DashboardSummary {
   preventive: DashboardPreventiveSummary;
   tech_support: DashboardTechSupportSummary;
   sla_trend: DashboardSlaTrendPoint[];
+  todos: DashboardTodoItem[];
+  todo_total: number;
+  asset_categories: DashboardAssetCategory[];
+  sla_groups: DashboardSlaGroup[];
+  ticket_total: number;
+  ticket_unresolved: number;
 }

@@ -14,7 +14,10 @@ from app.models.failure_incident import FailureIncident
 from app.models.preventive_lists import SpecialCheck, WeeklyTask, WorkStatus
 from app.models.tech_support import PartReplacement, SupportTicket
 from app.schemas.dashboard import (
+    AssetCategoryCount,
     AssetSummary,
+    SlaGroupScore,
+    TodoItem,
     DailyCheckStageCounts,
     DashboardSummary,
     FailureIncidentStageCounts,
@@ -170,26 +173,107 @@ def dashboard_summary(
     )
 
     sla_trend: list[SlaTrendPoint] = []
+    sla_groups: list[SlaGroupScore] = []
+    group_labels = {"availability": "가용성", "operation": "운영", "failure": "장애"}
     for yy, mm in _prior_months(year, month, 6):
         ym = f"{yy:04d}-{mm:02d}"
         summary = monthly_summary(year_month=ym, db=db)
         grouped = {"availability": 0.0, "operation": 0.0, "failure": 0.0}
+        weights = {"availability": 0.0, "operation": 0.0, "failure": 0.0}
         for row in summary.rows:
             if row.key.startswith("availability_"):
-                grouped["availability"] += row.weighted_score
+                group = "availability"
             elif row.key.startswith("failure_"):
-                grouped["failure"] += row.weighted_score
+                group = "failure"
             else:
-                grouped["operation"] += row.weighted_score
+                group = "operation"
+            grouped[group] += row.weighted_score
+            weights[group] += row.weight
+        sla_groups = [
+            SlaGroupScore(
+                key=g,
+                label=group_labels[g],
+                score=round(grouped[g] / weights[g] * 100, 1) if weights[g] else 0.0,
+            )
+            for g in ("availability", "operation", "failure")
+        ]
         sla_trend.append(
             SlaTrendPoint(
                 year_month=ym,
                 total=summary.total_score,
-                availability=round(grouped["availability"], 2),
-                operation=round(grouped["operation"], 2),
-                failure=round(grouped["failure"], 2),
+                availability=sla_groups[0].score,
+                operation=sla_groups[1].score,
+                failure=sla_groups[2].score,
             )
         )
+
+    # 내가 처리할 일: 월과 무관하게 현재 미처리 건
+    status_badge = {
+        "registered": ("등록", "warn"),
+        "in_progress": ("진행중", "danger"),
+        "completed": ("결재대기", "warn"),
+    }
+    open_incidents = list(
+        db.scalars(
+            select(FailureIncident)
+            .where(FailureIncident.status != "approved")
+            .order_by(FailureIncident.occurred_at.desc())
+        )
+    )
+    pending_checks = list(
+        db.scalars(
+            select(DailyCheck).where(DailyCheck.approved.is_(False)).order_by(DailyCheck.check_date.desc())
+        )
+    )
+    open_tickets = list(
+        db.scalars(
+            select(SupportTicket)
+            .where(SupportTicket.resolved.is_(False))
+            .order_by(SupportTicket.occurred_date.desc())
+        )
+    )
+    todos: list[TodoItem] = []
+    for inc in open_incidents:
+        badge, badge_type = status_badge.get(inc.status, (inc.status, "warn"))
+        todos.append(
+            TodoItem(
+                kind="failure",
+                title=f"장애 #{inc.id} {inc.content[:30]}",
+                badge=badge,
+                badge_type=badge_type,
+                path="/failure-incidents",
+            )
+        )
+    for chk in pending_checks:
+        todos.append(
+            TodoItem(
+                kind="daily_check",
+                title=f"일일업무보고 {chk.check_date} 결재",
+                badge="결재대기",
+                badge_type="warn",
+                path=f"/daily-checks/{chk.id}",
+            )
+        )
+    for tk in open_tickets:
+        todos.append(
+            TodoItem(
+                kind="support",
+                title=f"기술지원 {tk.content[:30]}",
+                badge="미조치",
+                badge_type="warn",
+                path="/support-tickets",
+            )
+        )
+
+    category_labels = {"server": "서버", "network": "네트워크", "security": "보안장비"}
+    asset_categories = [
+        AssetCategoryCount(
+            category=cat,
+            label=label,
+            count=sum(1 for eq in all_equipment if eq.category == cat),
+        )
+        for cat, label in category_labels.items()
+    ]
 
     return DashboardSummary(
         year=year,
@@ -200,4 +284,10 @@ def dashboard_summary(
         preventive=preventive,
         tech_support=tech_support,
         sla_trend=sla_trend,
+        todos=todos[:8],
+        todo_total=len(todos),
+        asset_categories=asset_categories,
+        sla_groups=sla_groups,
+        ticket_total=len(tickets),
+        ticket_unresolved=sum(1 for t in tickets if not t.resolved),
     )
