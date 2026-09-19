@@ -190,7 +190,7 @@ export default function EquipmentListPage() {
             {c.label} {counts[c.key]}
           </button>
         ))}
-        <button type="button" onClick={() => setModalOpen(true)}>
+        <button type="button" onClick={() => { setError(null); setModalOpen(true); }}>
           + 장비 등록
         </button>
       </div>
@@ -246,7 +246,7 @@ export default function EquipmentListPage() {
       {!loading && filtered.length === 0 && <p className="dash-empty">조건에 맞는 장비가 없습니다.</p>}
 
       {modalOpen && (
-        <div className="idle-modal-backdrop" onClick={() => setModalOpen(false)}>
+        <div className="idle-modal-backdrop" onClick={() => { setError(null); setModalOpen(false); }}>
           <div className="eq-modal" onClick={(e) => e.stopPropagation()}>
             <h3>장비 등록</h3>
             {error && <p style={{ color: "crimson", fontSize: 13 }}>{error}</p>}
@@ -447,7 +447,7 @@ export default function EquipmentListPage() {
             </details>
 
             <div className="eq-actions">
-              <button type="button" className="secondary" onClick={() => setModalOpen(false)}>
+              <button type="button" className="secondary" onClick={() => { setError(null); setModalOpen(false); }}>
                 취소
               </button>
               <button type="button" className="secondary" onClick={() => submit(true)}>
