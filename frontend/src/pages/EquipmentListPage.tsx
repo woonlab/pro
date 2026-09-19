@@ -199,7 +199,7 @@ export default function EquipmentListPage() {
       {loading ? (
         <p>불러오는 중...</p>
       ) : (
-        <table>
+        <table className="eq-table">
           <thead>
             <tr>
               <th>연번</th>
