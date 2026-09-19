@@ -893,3 +893,28 @@ button.dash-big--link:hover {
 .eq-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
 
 .eq-table { width: fit-content; max-width: 100%; margin: 24px auto 0; }
+
+/* Equipment detail */
+.ed-header { display: flex; align-items: center; gap: 10px; }
+.ed-header h2 { margin: 0; }
+.ed-sub { color: var(--muted); font-size: 13px; margin: 4px 0 16px; }
+.ed-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.ed-kpi { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+.ed-kpi div { font-size: 12px; color: var(--muted); }
+.ed-kpi b { display: block; font-size: 22px; margin: 4px 0 2px; }
+.ed-kpi small { color: var(--muted); font-size: 12px; }
+.ed-body { display: grid; grid-template-columns: 1fr 1.5fr; gap: 16px; align-items: start; }
+.ed-left { display: flex; flex-direction: column; gap: 16px; }
+.ed-kv { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+.ed-kv:last-child { border-bottom: none; }
+.ed-kv span:first-child { color: var(--muted); }
+.ed-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0; border: none; margin-bottom: 16px; background: transparent; }
+.ed-form input, .ed-form select { width: 100%; box-sizing: border-box; }
+.ed-form__wide { grid-column: span 2; }
+.ed-timeline { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--border); }
+.ed-timeline li { position: relative; padding-bottom: 14px; }
+.ed-timeline li::before { content: ""; position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.ed-timeline__row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; }
+.ed-timeline small { color: var(--muted); font-size: 12px; }
+.ed-timeline button { padding: 3px 8px; font-size: 12px; }
+@media (max-width: 860px) { .ed-body { grid-template-columns: 1fr; } .ed-form { grid-template-columns: 1fr 1fr; } .ed-form__wide { grid-column: span 2; } }
