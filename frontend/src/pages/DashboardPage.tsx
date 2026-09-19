@@ -169,57 +169,6 @@ export default function DashboardPage() {
 
     return (
       <>
-        <div className="dashboard-row dashboard-row--main">
-          <div className="dashboard-card">
-            <h3>
-              내가 처리할 일 <span className="dash-count">{d.todo_total}</span>
-            </h3>
-            {d.todos.length === 0 ? (
-              <p className="dash-empty">처리할 업무가 없습니다.</p>
-            ) : (
-              <ul className="dash-todo">
-                {d.todos.map((t, i) => (
-                  <li key={i}>
-                    <button type="button" onClick={() => navigate(t.path)}>
-                      <span>{t.title}</span>
-                      <span className={`dash-pill dash-pill--${t.badge_type}`}>{t.badge}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {d.todo_total > d.todos.length && (
-              <p className="dash-more">외 {d.todo_total - d.todos.length}건</p>
-            )}
-          </div>
-
-          <div className="dash-col">
-            <div className="dashboard-card">
-              <h3>
-                {d.year}년 {d.month}월 요약
-              </h3>
-              <ul className="dash-rows">
-                {summaryRows.map((r) => (
-                  <li key={r.label}>
-                    <span>{r.label}</span>
-                    <button type="button" className="dashboard-link-count" onClick={() => navigate(r.path)}>
-                      {r.count}건
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="dashboard-card">
-              <h3>SLA 종합점수</h3>
-              <div className="dash-big">
-                {slaTotal.toFixed(1)}
-                <small> / 100</small>
-              </div>
-              <Bar percent={slaTotal} color="#22c55e" />
-            </div>
-          </div>
-        </div>
-
         <div className="dashboard-row dashboard-row--three">
           <div className="dashboard-card">
             <h3>장애</h3>
@@ -273,6 +222,57 @@ export default function DashboardPage() {
             <p className="dash-sub">
               {d.asset.year_target_label} {d.asset.year_target_count} · 삭제(예정) {d.asset.delete_planned_count}
             </p>
+          </div>
+        </div>
+
+        <div className="dashboard-row dashboard-row--main">
+          <div className="dashboard-card">
+            <h3>
+              내가 처리할 일 <span className="dash-count">{d.todo_total}</span>
+            </h3>
+            {d.todos.length === 0 ? (
+              <p className="dash-empty">처리할 업무가 없습니다.</p>
+            ) : (
+              <ul className="dash-todo">
+                {d.todos.map((t, i) => (
+                  <li key={i}>
+                    <button type="button" onClick={() => navigate(t.path)}>
+                      <span>{t.title}</span>
+                      <span className={`dash-pill dash-pill--${t.badge_type}`}>{t.badge}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {d.todo_total > d.todos.length && (
+              <p className="dash-more">외 {d.todo_total - d.todos.length}건</p>
+            )}
+          </div>
+
+          <div className="dash-col">
+            <div className="dashboard-card">
+              <h3>
+                {d.year}년 {d.month}월 요약
+              </h3>
+              <ul className="dash-rows">
+                {summaryRows.map((r) => (
+                  <li key={r.label}>
+                    <span>{r.label}</span>
+                    <button type="button" className="dashboard-link-count" onClick={() => navigate(r.path)}>
+                      {r.count}건
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="dashboard-card">
+              <h3>SLA 종합점수</h3>
+              <div className="dash-big">
+                {slaTotal.toFixed(1)}
+                <small> / 100</small>
+              </div>
+              <Bar percent={slaTotal} color="#22c55e" />
+            </div>
           </div>
         </div>
       </>
