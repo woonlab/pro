@@ -90,7 +90,6 @@ export default function EquipmentListPage() {
   const [codes, setCodes] = useState<Code[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [form, setForm] = useState<EquipmentInput>(emptyForm);
-  const [serialNo, setSerialNo] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -121,14 +120,12 @@ export default function EquipmentListPage() {
     try {
       await api.createEquipment({
         ...form,
-        serial_no: serialNo || null,
         model: form.model || null,
         location: form.location || null,
         ip_address: form.ip_address || null,
         review_content: form.review_content || null,
       });
       setForm(emptyForm);
-      setSerialNo("");
       if (!keepOpen) setModalOpen(false);
       load();
     } catch (e) {
@@ -268,9 +265,6 @@ export default function EquipmentListPage() {
                   <option value="security">보안장비</option>
                   <option value="network">네트워크장비</option>
                 </select>
-              </Field>
-              <Field label="연번">
-                <input value={serialNo} onChange={(e) => setSerialNo(e.target.value)} />
               </Field>
               <Field label="IP 주소">
                 <input
