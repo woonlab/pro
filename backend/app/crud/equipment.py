@@ -13,8 +13,17 @@ def get_equipment(db: Session, equipment_id: int) -> Equipment | None:
     return db.get(Equipment, equipment_id)
 
 
+def _next_serial_no(db: Session) -> str:
+    existing = db.scalars(select(Equipment.serial_no).where(Equipment.serial_no.is_not(None)))
+    # 6자리 초과 값은 수기 입력된 별도 체계로 보고 자동 채번에서 제외
+    numbers = [int(s) for s in existing if s.isdigit() and len(s) <= 6]
+    return str(max(numbers, default=0) + 1)
+
+
 def create_equipment(db: Session, data: EquipmentCreate) -> Equipment:
-    equipment = Equipment(**data.model_dump())
+    values = data.model_dump()
+    values["serial_no"] = _next_serial_no(db)
+    equipment = Equipment(**values)
     db.add(equipment)
     db.commit()
     db.refresh(equipment)
