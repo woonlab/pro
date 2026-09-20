@@ -989,3 +989,12 @@ button.dash-big--link:hover {
 .dc-preview__grid p { margin: 0; font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-wrap; }
 .dc-preview__grid mark { background: #fac775; color: inherit; border-radius: 2px; padding: 0 1px; }
 @media (max-width: 860px) { .dc-preview__grid { grid-template-columns: 1fr; } }
+
+/* Dashboard live widgets */
+.dash-live { display: flex; align-items: center; gap: 6px; justify-content: flex-end; font-size: 12px; color: #1e8449; margin-bottom: 8px; }
+.dash-live__dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: dash-pulse 1.4s infinite; }
+@keyframes dash-pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); } 100% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); } }
+.dash-gauge { width: 100%; max-width: 220px; display: block; margin: 0 auto; }
+.dash-gauge__value { transition: stroke-dasharray 0.8s ease, stroke 0.8s ease; }
+.dash-spark { width: 100%; height: 50px; display: block; }
+.dash-spark-empty { height: 50px; display: flex; align-items: center; font-size: 12px; color: var(--muted); }

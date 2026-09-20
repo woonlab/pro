@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { api } from "../api/client";
@@ -16,7 +16,50 @@ const SLA_SERIES: { key: keyof DashboardSlaTrendPoint; label: string; color: str
   { key: "failure", label: "장애", color: "#a855f7" },
 ];
 
-const ASSET_COLORS = ["#2563eb", "#22c55e", "#f59e0b", "#a855f7"];
+const LIVE_REFRESH_MS = 10000;
+const LIVE_SAMPLES = 8;
+
+function SlaGauge({ value }: { value: number }) {
+  const v = Math.max(0, Math.min(value, 100));
+  const color = v >= 90 ? "#22c55e" : v >= 75 ? "#f59e0b" : "#ef4444";
+  const arc = "M 16 66 A 44 44 0 0 1 104 66";
+  return (
+    <svg viewBox="0 0 120 80" className="dash-gauge" role="img">
+      <title>SLA 종합점수</title>
+      <path d={arc} fill="none" stroke="#eef0f3" strokeWidth={10} strokeLinecap="round" pathLength={100} />
+      <path
+        d={arc}
+        fill="none"
+        stroke={color}
+        strokeWidth={10}
+        strokeLinecap="round"
+        pathLength={100}
+        strokeDasharray={`${v} 100`}
+        className="dash-gauge__value"
+      />
+      <text x="60" y="62" textAnchor="middle" fontSize="22" fontWeight="700" fill="#333">
+        {value.toFixed(1)}
+      </text>
+    </svg>
+  );
+}
+
+function Sparkline({ values, color }: { values: number[]; color: string }) {
+  if (values.length < 2) return <div className="dash-spark-empty">추이 수집 중…</div>;
+  const min = Math.min(...values) - 1;
+  const max = Math.max(...values) + 1;
+  const pts = values.map((v, i) => [10 + (i * 140) / (values.length - 1), 44 - ((v - min) / (max - min)) * 36]);
+  const last = pts[pts.length - 1];
+  return (
+    <svg viewBox="0 0 160 50" className="dash-spark" role="img">
+      <title>최근 변화</title>
+      <polyline points={pts.map((p) => p.join(",")).join(" ")} fill="none" stroke={color} strokeWidth={2} />
+      <circle cx={last[0]} cy={last[1]} r={3.5} fill={color} />
+    </svg>
+  );
+}
+
+const ASSET_COLORS =["#2563eb", "#22c55e", "#f59e0b", "#a855f7"];
 
 function SlaTrendChart({ points }: { points: DashboardSlaTrendPoint[] }) {
   const width = 520;
@@ -128,17 +171,48 @@ export default function DashboardPage() {
   const [month, setMonth] = useState(initial.month);
   const [data, setData] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState<{ open: number[]; pending: number[] }>({ open: [], pending: [] });
+  const selectedRef = useRef({ year: initial.year, month: initial.month });
+  selectedRef.current = { year, month };
+
+  const pushHistory = (d: DashboardSummary, reset: boolean) => {
+    const open = d.failure_incident.in_progress;
+    const pending = d.daily_check.pending_approval + d.failure_incident.completed;
+    setHistory((h) => ({
+      open: [...(reset ? [] : h.open), open].slice(-LIVE_SAMPLES),
+      pending: [...(reset ? [] : h.pending), pending].slice(-LIVE_SAMPLES),
+    }));
+  };
 
   const load = (y: number, m: number) => {
     setLoading(true);
     api
       .getDashboardSummary(y, m)
-      .then(setData)
+      .then((d) => {
+        setData(d);
+        pushHistory(d, true);
+      })
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     load(initial.year, initial.month);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (document.hidden) return;
+      const { year: y, month: m } = selectedRef.current;
+      api
+        .getDashboardSummary(y, m)
+        .then((d) => {
+          setData(d);
+          pushHistory(d, false);
+        })
+        .catch(() => undefined);
+    }, LIVE_REFRESH_MS);
+    return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -167,8 +241,35 @@ export default function DashboardPage() {
       { label: "파트교체", count: ts.part_replacement_count, path: "/part-replacements" },
     ];
 
+    const pendingNow = dc.pending_approval + fi.completed;
+
     return (
       <>
+        <div className="dash-live">
+          <span className="dash-live__dot" />
+          실시간 · {LIVE_REFRESH_MS / 1000}초마다 갱신
+        </div>
+        <div className="dashboard-row dashboard-row--three">
+          <div className="dashboard-card">
+            <h3>SLA 종합점수</h3>
+            <SlaGauge value={slaTotal} />
+          </div>
+          <div className="dashboard-card">
+            <h3>진행 중 장애</h3>
+            <button type="button" className="dash-big dash-big--link" onClick={() => navigate("/failure-incidents")}>
+              {fi.in_progress}
+            </button>
+            <Sparkline values={history.open} color="#ef4444" />
+          </div>
+          <div className="dashboard-card">
+            <h3>결재 대기</h3>
+            <button type="button" className="dash-big dash-big--link" onClick={() => navigate("/daily-checks")}>
+              {pendingNow}
+            </button>
+            <Sparkline values={history.pending} color="#2563eb" />
+          </div>
+        </div>
+
         <div className="dashboard-row dashboard-row--three">
           <div className="dashboard-card">
             <h3>장애</h3>
