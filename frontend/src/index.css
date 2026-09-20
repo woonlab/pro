@@ -970,3 +970,22 @@ button.dash-big--link:hover {
 .app-sidebar__group-head { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 9px 20px 4px; background: transparent; color: #8891a0; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; border-radius: 0; text-align: left; }
 .app-sidebar__group-head:hover { background: transparent; color: #cfd4dc; }
 .app-sidebar__link--sub { padding: 7px 20px 7px 34px; font-size: 13px; }
+
+/* Daily report search */
+.dc-search { margin-top: 16px; }
+.dc-search__bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 4px; }
+.dc-search__q { flex: 1; min-width: 220px; }
+.dc-search__table { display: table; table-layout: fixed; width: 100%; margin-top: 8px; }
+.dc-search__table td { overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.dc-search__table mark { background: #fac775; color: inherit; border-radius: 2px; padding: 0 1px; }
+.dc-row--sel td { background: #fff2e0; }
+.dc-ok { color: #22c55e; font-size: 10px; }
+.dc-wait { color: var(--accent); font-size: 10px; }
+.dc-preview { margin-top: 12px; }
+.dc-preview__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; }
+.dc-preview__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dc-preview__grid > div { background: #f5f6f8; border-radius: 6px; padding: 10px 12px; }
+.dc-preview__grid b { display: block; font-size: 12px; margin-bottom: 4px; }
+.dc-preview__grid p { margin: 0; font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-wrap; }
+.dc-preview__grid mark { background: #fac775; color: inherit; border-radius: 2px; padding: 0 1px; }
+@media (max-width: 860px) { .dc-preview__grid { grid-template-columns: 1fr; } }

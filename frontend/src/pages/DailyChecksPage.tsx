@@ -26,6 +26,20 @@ function addDays(d: Date, n: number): Date {
   return r;
 }
 
+function Highlight({ text, q }: { text: string | null; q: string }) {
+  if (!text) return <>-</>;
+  const term = q.trim();
+  if (!term) return <>{text}</>;
+  const parts = text.split(new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi"));
+  return (
+    <>
+      {parts.map((p, i) =>
+        p.toLowerCase() === term.toLowerCase() ? <mark key={i}>{p}</mark> : <span key={i}>{p}</span>,
+      )}
+    </>
+  );
+}
+
 const SECTIONS: { key: "common" | "maintenance" | "logMissing" | "ongoing"; label: string }[] = [
   { key: "common", label: "공통사항" },
   { key: "maintenance", label: "유지관리" },
@@ -48,6 +62,26 @@ export default function DailyChecksPage() {
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const weekLabel = `${weekStart.getFullYear()}년 ${weekStart.getMonth() + 1}월 ${weekStart.getDate()}일 주`;
 
+  const [q, setQ] = useState("");
+  const [appliedQ, setAppliedQ] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "approved" | "pending">("all");
+  const [results, setResults] = useState<DailyCheck[]>([]);
+  const [previewId, setPreviewId] = useState<number | null>(null);
+
+  const runSearch = (term = appliedQ) => {
+    api
+      .searchDailyChecks({
+        q: term || undefined,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
+        approved: statusFilter === "all" ? undefined : statusFilter === "approved",
+      })
+      .then(setResults)
+      .catch((e) => setError(String(e)));
+  };
+
   const load = () => {
     const months = Array.from(
       new Set([weekDays[0], weekDays[6]].map((d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`)),
@@ -55,6 +89,28 @@ export default function DailyChecksPage() {
     Promise.all(months.map((m) => api.listDailyChecks(m)))
       .then((lists) => setReports(lists.flat()))
       .catch((e) => setError(String(e)));
+    runSearch();
+  };
+
+  const handleSearch = () => {
+    setAppliedQ(q);
+    runSearch(q);
+  };
+
+  const handleReset = () => {
+    setQ("");
+    setAppliedQ("");
+    setDateFrom("");
+    setDateTo("");
+    setStatusFilter("all");
+    api.searchDailyChecks({}).then(setResults).catch((e) => setError(String(e)));
+  };
+
+  const goToReport = (r: DailyCheck) => {
+    const d = new Date(r.check_date + "T00:00:00");
+    setWeekStart(mondayOf(d));
+    setSelectedDate(r.check_date);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   useEffect(load, [weekStart]);
@@ -227,6 +283,116 @@ export default function DailyChecksPage() {
           )}
           {!locked && <button onClick={handleSave}>저장</button>}
         </div>
+      </div>
+
+      <div className="dashboard-card dc-search">
+        <h3>일지 검색</h3>
+        <div className="dc-search__bar">
+          <input
+            className="dc-search__q"
+            placeholder="내용 검색 (공통사항 / 유지관리 / 로그미수집 / 진행 중 업무)"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          />
+          <input type="date" title="시작일" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+          <span>~</span>
+          <input type="date" title="종료일" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}>
+            <option value="all">전체 상태</option>
+            <option value="approved">결재완료</option>
+            <option value="pending">결재대기</option>
+          </select>
+          <button type="button" onClick={handleSearch}>
+            검색
+          </button>
+          <button type="button" className="secondary" onClick={handleReset}>
+            초기화
+          </button>
+        </div>
+        <p className="dash-sub">총 {results.length}건 · 행을 누르면 아래에서 전체 내용을 볼 수 있습니다.</p>
+
+        <table className="dc-search__table">
+          <colgroup>
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "10%" }} />
+            <col style={{ width: "20%" }} />
+            <col style={{ width: "20%" }} />
+            <col style={{ width: "19%" }} />
+            <col style={{ width: "19%" }} />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>일자</th>
+              <th>점검자</th>
+              <th>공통사항</th>
+              <th>유지관리</th>
+              <th>로그미수집</th>
+              <th>진행 중 업무</th>
+            </tr>
+          </thead>
+          <tbody>
+            {results.map((r) => (
+              <tr
+                key={r.id}
+                className={r.id === previewId ? "dc-row--sel" : ""}
+                onClick={() => setPreviewId(r.id)}
+              >
+                <td>
+                  {r.check_date.slice(5)} <span className={r.approved ? "dc-ok" : "dc-wait"}>●</span>
+                </td>
+                <td>{userLabel(r.inspector_user_id)}</td>
+                <td>
+                  <Highlight text={r.common_content} q={appliedQ} />
+                </td>
+                <td>
+                  <Highlight text={r.maintenance_content} q={appliedQ} />
+                </td>
+                <td>
+                  <Highlight text={r.log_missing_content} q={appliedQ} />
+                </td>
+                <td>
+                  <Highlight text={r.ongoing_work_content} q={appliedQ} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {results.length === 0 && <p className="dash-empty">검색 결과가 없습니다.</p>}
+
+        {(() => {
+          const p = results.find((r) => r.id === previewId) ?? results[0];
+          if (!p) return null;
+          return (
+            <div className="dc-preview">
+              <div className="dc-preview__head">
+                <b>
+                  {p.check_date} · {p.approved ? "결재완료" : "결재대기"}
+                </b>
+                <button type="button" className="secondary" onClick={() => goToReport(p)}>
+                  이 날짜로 이동
+                </button>
+              </div>
+              <div className="dc-preview__grid">
+                {(
+                  [
+                    ["공통사항", p.common_content],
+                    ["유지관리", p.maintenance_content],
+                    ["로그미수집", p.log_missing_content],
+                    ["진행 중 업무", p.ongoing_work_content],
+                  ] as const
+                ).map(([label, text]) => (
+                  <div key={label}>
+                    <b>{label}</b>
+                    <p>
+                      <Highlight text={text} q={appliedQ} />
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

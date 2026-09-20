@@ -1,7 +1,7 @@
 from datetime import date, datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
@@ -18,6 +18,11 @@ router = APIRouter(
 @router.get("", response_model=list[DailyCheckRead])
 def list_daily_checks(
     year_month: str | None = Query(default=None, description="YYYY-MM"),
+    q: str | None = Query(default=None, description="4개 섹션 내용 검색어"),
+    date_from: date | None = Query(default=None),
+    date_to: date | None = Query(default=None),
+    approved: bool | None = Query(default=None),
+    limit: int = Query(default=500, ge=1, le=1000),
     db: Session = Depends(get_db),
 ):
     stmt = select(DailyCheck).order_by(DailyCheck.check_date.desc())
@@ -26,7 +31,23 @@ def list_daily_checks(
         start = date(year, month, 1)
         end = date(year + 1, 1, 1) if month == 12 else date(year, month + 1, 1)
         stmt = stmt.where(DailyCheck.check_date >= start, DailyCheck.check_date < end)
-    return list(db.scalars(stmt))
+    if date_from:
+        stmt = stmt.where(DailyCheck.check_date >= date_from)
+    if date_to:
+        stmt = stmt.where(DailyCheck.check_date <= date_to)
+    if approved is not None:
+        stmt = stmt.where(DailyCheck.approved.is_(approved))
+    if q and q.strip():
+        like = f"%{q.strip()}%"
+        stmt = stmt.where(
+            or_(
+                DailyCheck.common_content.ilike(like),
+                DailyCheck.maintenance_content.ilike(like),
+                DailyCheck.log_missing_content.ilike(like),
+                DailyCheck.ongoing_work_content.ilike(like),
+            )
+        )
+    return list(db.scalars(stmt.limit(limit)))
 
 
 @router.post("", response_model=DailyCheckRead, status_code=201)

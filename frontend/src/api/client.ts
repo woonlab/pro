@@ -192,6 +192,15 @@ export const api = {
 
   listDailyChecks: (yearMonth?: string) =>
     request<DailyCheck[]>(`/daily-checks${yearMonth ? `?year_month=${yearMonth}` : ""}`),
+  searchDailyChecks: (params: { q?: string; dateFrom?: string; dateTo?: string; approved?: boolean }) => {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set("q", params.q);
+    if (params.dateFrom) qs.set("date_from", params.dateFrom);
+    if (params.dateTo) qs.set("date_to", params.dateTo);
+    if (params.approved !== undefined) qs.set("approved", String(params.approved));
+    const s = qs.toString();
+    return request<DailyCheck[]>(`/daily-checks${s ? `?${s}` : ""}`);
+  },
   getDailyCheck: (id: number) => request<DailyCheck>(`/daily-checks/${id}`),
   createDailyCheck: (data: DailyCheckInput) =>
     request<DailyCheck>("/daily-checks", { method: "POST", body: JSON.stringify(data) }),
