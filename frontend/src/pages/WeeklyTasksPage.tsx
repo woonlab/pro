@@ -101,6 +101,29 @@ export default function WeeklyTasksPage() {
   const selectedTasks = tasksByDate.get(selectedDate) ?? [];
   const selectedLabel = new Date(selectedDate + "T00:00:00");
 
+  const weekStart = new Date(selectedLabel);
+  weekStart.setDate(selectedLabel.getDate() - selectedLabel.getDay());
+  const weekDates = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + i);
+    return d;
+  });
+  const weekRangeLabel = `${weekDates[0].getMonth() + 1}/${weekDates[0].getDate()} ~ ${
+    weekDates[6].getMonth() + 1
+  }/${weekDates[6].getDate()}`;
+  const weekRows = weekDates
+    .map((d) => {
+      const list = tasksByDate.get(fmt(d)) ?? [];
+      return {
+        date: fmt(d),
+        label: `${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} (${DAY_LABELS[d.getDay()]})`,
+        contents: list.map((t) => t.content).join(", "),
+        owners: Array.from(new Set(list.map((t) => userLabel(t.owner_user_id)).filter((n) => n !== "-"))).join(", ") || "-",
+        count: list.length,
+      };
+    })
+    .filter((r) => r.count > 0);
+
   return (
     <div>
       <div className="dc-head">
@@ -123,6 +146,7 @@ export default function WeeklyTasksPage() {
       {error && <p style={{ color: "crimson" }}>{error}</p>}
 
       <div className="wt-body">
+        <div className="wt-main">
         <div className="wt-cal">
           {DAY_LABELS.map((l, i) => (
             <div key={l} className={`wt-h${i === 0 ? " wt-sun" : i === 6 ? " wt-sat" : ""}`}>
@@ -155,31 +179,79 @@ export default function WeeklyTasksPage() {
           })}
         </div>
 
-        <div className="dashboard-card wt-side">
-          <h3>
-            {selectedLabel.getMonth() + 1}월 {selectedLabel.getDate()}일 ({DAY_LABELS[selectedLabel.getDay()]})
-          </h3>
+        <div className="dashboard-card wt-detail">
+          <div className="wt-detail__head">
+            <h3>
+              {selectedLabel.getMonth() + 1}월 {selectedLabel.getDate()}일 ({DAY_LABELS[selectedLabel.getDay()]}) 업무
+            </h3>
+            <span className="wt-count">{selectedTasks.length}건</span>
+          </div>
 
           {selectedTasks.length === 0 ? (
             <p className="dash-empty">등록된 업무가 없습니다.</p>
           ) : (
-            <ul className="wt-list">
-              {selectedTasks.map((t) => (
-                <li key={t.id}>
-                  <div>
-                    <b>{t.content}</b>
-                    <small>
-                      {userLabel(t.owner_user_id)}
-                      {t.memo ? ` · ${t.memo}` : ""}
-                    </small>
-                  </div>
-                  <button className="secondary" onClick={() => handleDelete(t.id)}>
-                    삭제
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <table className="wt-table">
+              <thead>
+                <tr>
+                  <th>업무 내용</th>
+                  <th>담당자</th>
+                  <th>비고</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedTasks.map((t) => (
+                  <tr key={t.id}>
+                    <td>{t.content}</td>
+                    <td>{userLabel(t.owner_user_id)}</td>
+                    <td>{t.memo ?? "-"}</td>
+                    <td>
+                      <button className="secondary" onClick={() => handleDelete(t.id)}>
+                        삭제
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
+
+          <h4 className="wt-week-title">
+            이번 주({weekRangeLabel}) 전체
+          </h4>
+          {weekRows.length === 0 ? (
+            <p className="dash-empty">이 주에 등록된 업무가 없습니다.</p>
+          ) : (
+            <table className="wt-table">
+              <thead>
+                <tr>
+                  <th>일자</th>
+                  <th>업무</th>
+                  <th>담당자</th>
+                </tr>
+              </thead>
+              <tbody>
+                {weekRows.map((r) => (
+                  <tr
+                    key={r.date}
+                    className={r.date === selectedDate ? "wt-row--sel" : ""}
+                    onClick={() => setSelectedDate(r.date)}
+                  >
+                    <td>{r.label}</td>
+                    <td>{r.contents}</td>
+                    <td>{r.owners}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+        </div>
+
+        <div className="dashboard-card wt-side">
+          <h3>
+            {selectedLabel.getMonth() + 1}월 {selectedLabel.getDate()}일 업무 등록
+          </h3>
 
           <form className="wt-form" onSubmit={handleCreate}>
             <input
