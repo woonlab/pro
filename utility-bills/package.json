@@ -1,0 +1,22 @@
+{
+  "name": "utility-bills",
+  "version": "0.1.0",
+  "private": true,
+  "description": "공과금(전기·수도·가스 등) PDF/텍스트를 저장하고 그래프로 보여주는 NAS용 웹앱",
+  "type": "module",
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "chart.js": "4.6.1",
+    "express": "5.3.0",
+    "multer": "2.5.0",
+    "unpdf": "2.2.0"
+  }
+}

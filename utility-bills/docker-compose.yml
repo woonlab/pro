@@ -1,0 +1,14 @@
+services:
+  utility-bills:
+    build: .
+    container_name: utility-bills
+    restart: unless-stopped
+    ports:
+      - "8089:8080"          # NAS주소:8089 로 접속
+    environment:
+      TZ: Asia/Seoul
+      # 밖(인터넷)에서도 접속할 거라면 아래 두 줄의 주석(#)을 지우고 값을 바꾸세요
+      # APP_USER: admin
+      # APP_PASSWORD: 바꿔주세요
+    volumes:
+      - ./data:/data         # DB와 원본 PDF가 저장되는 곳 (이 폴더를 백업하세요)
